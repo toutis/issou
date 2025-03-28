@@ -8,7 +8,6 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
-
     /* Conteneur principal en flex : deux colonnes (gauche et droite).
        On limite la largeur totale et on centre le tout avec margin: 0 auto. */
     .main-container {
@@ -20,28 +19,24 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-
     /* Colonne de gauche (formulaire, paramètres) */
     .left-column {
       flex: 1;
       max-width: 45%;
       text-align: left;
     }
-
     /* Colonne de droite (chance, tickets, tirages...) */
     .right-column {
       flex: 1;
       max-width: 45%;
       text-align: left;
     }
-
     .form-group,
     .display,
     .compteur {
       font-size: 1.1em;
       margin: 10px 0;
     }
-
     input,
     button,
     select,
@@ -50,23 +45,19 @@
       font-size: 1em;
       margin: 5px;
     }
-
     .ticket {
       border: 1px solid #aaa;
       padding: 8px;
       margin: 5px 0;
       width: fit-content;
     }
-
     .winning {
       background-color: #cfc;
     }
-
     #chanceDisplay {
       font-weight: bold;
       margin: 10px 0;
     }
-
     /* Contour doré autour du tirage officiel */
     #resultat {
       border: 2px solid gold;
@@ -100,10 +91,6 @@
 
         <!-- Paramétrage personnalisé -->
         <div class="form-group" id="customSettings" style="display:none;">
-          <label for="customNumbers">Mes numéros (séparés par des virgules, ex: 3,15,22,37,42) :</label>
-          <input type="text" id="customNumbers" placeholder="Ex: 3,15,22,37,42"><br>
-          <label for="customStars">Mes étoiles (séparées par des virgules, ex: 1,9) :</label>
-          <input type="text" id="customStars" placeholder="Ex: 1,9"><br>
           <label for="customGrids">
             Mes grilles personnalisées :<br>
             Entrez une grille par ligne au format "num1,num2,... ; star1,star2,..."<br>
@@ -281,9 +268,11 @@
       const pTicket = computeChance(numCount, starCount, stopNumbers, stopStars);
       const pGlobal = 1 - Math.pow(1 - pTicket, numTickets);
       const percent = (pGlobal * 100).toFixed(8);
+      // Formatage en style allemand pour obtenir des points comme séparateurs de milliers (ex : 1.000.000)
+      const reciprocalFormatted = pGlobal > 0 ? (1 / pGlobal).toLocaleString('de-DE', { maximumFractionDigits: 0 }) : "∞";
 
       document.getElementById("chanceDisplay").innerHTML =
-        `Taux de chance (pour au moins ${stopNumbers} numéros et ${stopStars} étoiles) : ${percent}%`;
+        `Taux de chance (pour au moins ${stopNumbers} numéros et ${stopStars} étoiles) : ${percent}%<br>1 chance sur ${reciprocalFormatted}`;
     }
 
     // Mettre à jour l'affichage lors des changements
@@ -292,6 +281,9 @@
         input.addEventListener("input", updateChanceDisplay);
       });
     updateChanceDisplay();
+
+    // Masquer le bouton "Stop" tant qu'aucun tirage n'a été lancé (stats à zéro)
+    document.getElementById("stopBtn").style.display = "none";
 
     // Basculer l'affichage des paramètres en fonction du mode sélectionné
     document.getElementById("modeSelect").addEventListener("change", function() {
@@ -436,8 +428,9 @@
       document.getElementById("ticketsContainer").innerHTML = "";
       document.getElementById("resultat").innerHTML = `<strong>Tirage :</strong><br>Numéros : --<br>Étoiles : --`;
       document.getElementById("stopBtn").textContent = "Stop";
-      // Masquer le bouton "Démarrer" pendant la simulation
+      // Masquer le bouton "Démarrer" pendant la simulation et afficher le bouton "Stop"
       document.getElementById("startBtn").style.display = "none";
+      document.getElementById("stopBtn").style.display = "inline-block";
       runLoop();
     }
 
@@ -467,8 +460,9 @@
       document.getElementById("resultat").innerHTML =
         `<strong>Tirage :</strong><br>Numéros : --<br>Étoiles : --`;
       document.getElementById("stopBtn").textContent = "Stop";
-      // Réafficher le bouton "Démarrer" après reset
+      // Réafficher le bouton "Démarrer" après reset et masquer le bouton "Stop"
       document.getElementById("startBtn").style.display = "block";
+      document.getElementById("stopBtn").style.display = "none";
     });
   </script>
 </body>
