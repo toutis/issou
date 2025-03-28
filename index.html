@@ -247,30 +247,29 @@
 
     // 2) Met à jour l’affichage des stats dans la partie HTML (dans #statsContainer)
 	function updateStatsDisplay() {
-	  // 1) Calcule la somme totale de toutes les occurrences
+	  // Calculer la somme totale de toutes les occurrences
 	  let total = 0;
 	  for (let combo in stats) {
 		total += stats[combo];
 	  }
 
-	  // 2) Pour chaque combinaison, calcule le pourcentage
+	  // Mettre à jour l'affichage pour chaque combinaison
 	  for (let combo in stats) {
 		const elem = document.getElementById("stats_" + combo);
 		if (elem) {
-		  const count = stats[combo];
-		  // Évite la division par zéro
-		  let pct = (total > 0) ? (count / total * 100) : 0;
-
-		  // 3) Affiche, par exemple : "163 (0.24%)"
-		  //    On peut utiliser .toFixed(2) pour 2 décimales, 
-		  //    et toLocaleString('de-DE') pour formater le nombre d'occurrences avec des points.
-		  elem.innerHTML = `
-		  ${count.toLocaleString('de-DE')} 
-		  <span style="color: gray;">(${pct.toFixed(2)}%)</span>
-		`;
+		  const countValue = stats[combo];
+		  let pct = (total > 0) ? (countValue / total * 100) : 0;
+		  
+		  // Si la valeur est 0, afficher uniquement le 0 en rouge
+		  if (countValue === 0) {
+			elem.innerHTML = `<span style="color: red;">${countValue.toLocaleString('de-DE')}</span> <span style="color: gray;">(${pct.toFixed(2)}%)</span>`;
+		  } else {
+			elem.innerHTML = `${countValue.toLocaleString('de-DE')} <span style="color: gray;">(${pct.toFixed(2)}%)</span>`;
+		  }
 		}
 	  }
 	}
+
 
 
     // Calcul et affichage du taux de chance estimé
