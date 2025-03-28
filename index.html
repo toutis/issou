@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Simulation Issou</title>
+  <title>Simulation Euro Millions</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,19 +12,19 @@
     /* Conteneur principal en flex : deux colonnes (gauche et droite).
        On limite la largeur totale et on centre le tout avec margin: 0 auto. */
     .main-container {
-      max-width: 1200px;               /* Largeur max de la zone de contenu */
-      margin: 0 auto;                  /* Centre horizontalement */
+      max-width: 1200px;
+      margin: 0 auto;
       display: flex;
-      justify-content: space-between;  /* Répartit l'espace entre les colonnes */
+      justify-content: space-between;
       align-items: flex-start;
       flex-wrap: wrap;
-      gap: 10px;                       /* Espace horizontal/vertical entre les colonnes */
+      gap: 10px;
     }
 
     /* Colonne de gauche (formulaire, paramètres) */
     .left-column {
       flex: 1;
-      max-width: 45%;    /* Ajustez si besoin pour rapprocher/élargir encore plus */
+      max-width: 45%;
       text-align: left;
     }
 
@@ -69,9 +69,9 @@
 
     /* Contour doré autour du tirage officiel */
     #resultat {
-      border: 2px solid gold;  /* Contour doré */
-      padding: 10px;           /* Espacement interne */
-      margin: 10px 0;          /* Espacement externe */
+      border: 2px solid gold;
+      padding: 10px;
+      margin: 10px 0;
     }
   </style>
 </head>
@@ -79,8 +79,7 @@
   <div class="main-container">
     <!-- Colonne de gauche : paramètres et boutons -->
     <div class="left-column">
-      <h1>Simulation Issou</h1>
-
+      <h1>Simulation Euro Millions</h1>
       <div class="section">
         <!-- Sélection du mode -->
         <div class="form-group">
@@ -159,7 +158,7 @@
       </div>
 
       <div class="compteur" id="counter">Tirages : 0</div>
-	  
+      
       <div class="section display" id="ticketsContainer">
         <!-- Affichage des tickets -->
       </div>
@@ -234,9 +233,9 @@
       return tickets;
     }
 
-    let count = 0; // compteur de tirages
-    let stopFlag = false; // flag pour stopper la simulation
-    let loopTimeout; // ID du timeout de la boucle
+    let count = 0;         // compteur de tirages
+    let stopFlag = false;  // flag pour stopper la simulation
+    let loopTimeout;       // ID du timeout de la boucle
 
     // Mise à jour du taux de chance en fonction des paramètres et du mode choisi.
     function updateChanceDisplay() {
@@ -311,15 +310,11 @@
       updateChanceDisplay();
     });
 
-    function startDrawing() {
-      clearTimeout(loopTimeout);
-      count = 0;
-      stopFlag = false;
-      document.getElementById("counter").textContent = "Tirages : 0";
-      document.getElementById("ticketsContainer").innerHTML = "";
-      document.getElementById("resultat").innerHTML = `<strong>Tirage :</strong><br>Numéros : --<br>Étoiles : --`;
-      document.getElementById("stopBtn").textContent = "Stop";
-
+    // Fonction principale de la boucle de tirage
+    function runLoop() {
+      if (stopFlag) return;
+      let tickets = [];
+      let draw = null;
       const mode = document.getElementById("modeSelect").value;
       let customTickets = [];
 
@@ -349,96 +344,107 @@
       const speed = parseInt(document.getElementById("speed").value) || 0;
       const batchSize = parseInt(document.getElementById("batchSize").value) || 10000;
 
-      function loop() {
-        if (stopFlag) return;
-        let tickets = [];
-        let draw = null;
-
-        for (let i = 0; i < batchSize; i++) {
-          count++;
-          tickets = [];
-          for (let j = 0; j < numTickets; j++) {
-            if (mode === "flash") {
-              tickets.push(generateTicket(numCount, starCount));
+      for (let i = 0; i < batchSize; i++) {
+        count++;
+        tickets = [];
+        for (let j = 0; j < numTickets; j++) {
+          if (mode === "flash") {
+            tickets.push(generateTicket(numCount, starCount));
+          } else {
+            if (customTickets.length > 0) {
+              tickets.push(customTickets[j % customTickets.length]);
             } else {
-              if (customTickets.length > 0) {
-                tickets.push(customTickets[j % customTickets.length]);
-              } else {
-                const customNums = parseCustomInput(document.getElementById("customNumbers").value);
-                const customStars = parseCustomInput(document.getElementById("customStars").value);
-                tickets.push({
-                  numbers: customNums.sort((a, b) => a - b),
-                  stars: customStars.sort((a, b) => a - b)
-                });
-              }
+              const customNums = parseCustomInput(document.getElementById("customNumbers").value);
+              const customStars = parseCustomInput(document.getElementById("customStars").value);
+              tickets.push({
+                numbers: customNums.sort((a, b) => a - b),
+                stars: customStars.sort((a, b) => a - b)
+              });
             }
-          }
-
-          draw = generateDraw();
-
-          const winningTicket = tickets.find(ticket => {
-            const matchNumbers = countMatches(ticket.numbers, draw.numbers);
-            const matchStars = countMatches(ticket.stars, draw.stars);
-            return (matchNumbers >= stopNumbers && matchStars >= stopStars);
-          });
-
-          if (winningTicket) {
-            // On affiche les tickets
-            document.getElementById("ticketsContainer").innerHTML = "";
-            tickets.forEach((ticket, index) => {
-              const div = document.createElement("div");
-              div.className = "ticket";
-              div.innerHTML = `<strong>Ticket ${index + 1} :</strong><br>
-                               Numéros : ${ticket.numbers.join(", ")}<br>
-                               Étoiles : ${ticket.stars.join(", ")}`;
-              if (ticket === winningTicket) {
-                div.classList.add("winning");
-              }
-              document.getElementById("ticketsContainer").appendChild(div);
-            });
-
-            document.getElementById("resultat").innerHTML =
-              `<strong>Tirage :</strong><br>
-               Numéros : ${draw.numbers.join(", ")}<br>
-               Étoiles : ${draw.stars.join(", ")}`;
-
-            document.getElementById("counter").textContent = "Tirages : " + count;
-
-            alert(
-              "Seuil atteint !\n" +
-              "Ticket gagnant : " + winningTicket.numbers.join(", ") + " | " + winningTicket.stars.join(", ") + "\n" +
-              "Tirage : " + draw.numbers.join(", ") + " | " + draw.stars.join(", ") + "\n" +
-              "Nombre de tirages : " + count
-            );
-            return;
           }
         }
 
-        // Mise à jour de l’affichage pour le dernier lot de tickets
-        document.getElementById("ticketsContainer").innerHTML = "";
-        tickets.forEach((ticket, index) => {
-          const div = document.createElement("div");
-          div.className = "ticket";
-          div.innerHTML = `<strong>Ticket ${index + 1} :</strong><br>
-                           Numéros : ${ticket.numbers.join(", ")}<br>
-                           Étoiles : ${ticket.stars.join(", ")}`;
-          document.getElementById("ticketsContainer").appendChild(div);
+        draw = generateDraw();
+
+        const winningTicket = tickets.find(ticket => {
+          const matchNumbers = countMatches(ticket.numbers, draw.numbers);
+          const matchStars = countMatches(ticket.stars, draw.stars);
+          return (matchNumbers >= stopNumbers && matchStars >= stopStars);
         });
 
-        document.getElementById("resultat").innerHTML =
-          `<strong>Tirage :</strong><br>
-           Numéros : ${draw.numbers.join(", ")}<br>
-           Étoiles : ${draw.stars.join(", ")}`;
+        if (winningTicket) {
+          // Affichage des tickets et du tirage gagnant
+          document.getElementById("ticketsContainer").innerHTML = "";
+          tickets.forEach((ticket, index) => {
+            const div = document.createElement("div");
+            div.className = "ticket";
+            div.innerHTML = `<strong>Ticket ${index + 1} :</strong><br>
+                               Numéros : ${ticket.numbers.join(", ")}<br>
+                               Étoiles : ${ticket.stars.join(", ")}`;
+            if (ticket === winningTicket) {
+              div.classList.add("winning");
+            }
+            document.getElementById("ticketsContainer").appendChild(div);
+          });
 
-        document.getElementById("counter").textContent = "Tirages : " + count;
-        loopTimeout = setTimeout(loop, speed);
+          document.getElementById("resultat").innerHTML =
+            `<strong>Tirage :</strong><br>
+             Numéros : ${draw.numbers.join(", ")}<br>
+             Étoiles : ${draw.stars.join(", ")}`;
+
+          document.getElementById("counter").textContent = "Tirages : " + count;
+
+          alert(
+            "Seuil atteint !\n" +
+            "Ticket gagnant : " + winningTicket.numbers.join(", ") + " | " + winningTicket.stars.join(", ") + "\n" +
+            "Tirage : " + draw.numbers.join(", ") + " | " + draw.stars.join(", ") + "\n" +
+            "Nombre de tirages : " + count
+          );
+          // Arrêter la simulation après le ticket gagnant et réafficher le bouton "Démarrer"
+          stopFlag = true;
+          document.getElementById("startBtn").style.display = "block";
+          return;
+        }
       }
-      loop();
+
+      // Mise à jour de l'affichage pour le dernier lot de tickets
+      document.getElementById("ticketsContainer").innerHTML = "";
+      tickets.forEach((ticket, index) => {
+        const div = document.createElement("div");
+        div.className = "ticket";
+        div.innerHTML = `<strong>Ticket ${index + 1} :</strong><br>
+                         Numéros : ${ticket.numbers.join(", ")}<br>
+                         Étoiles : ${ticket.stars.join(", ")}`;
+        document.getElementById("ticketsContainer").appendChild(div);
+      });
+
+      document.getElementById("resultat").innerHTML =
+        `<strong>Tirage :</strong><br>
+         Numéros : ${draw.numbers.join(", ")}<br>
+         Étoiles : ${draw.stars.join(", ")}`;
+
+      document.getElementById("counter").textContent = "Tirages : " + count;
+      loopTimeout = setTimeout(runLoop, speed);
     }
 
+    // Fonction de démarrage initiale de la simulation
+    function startDrawing() {
+      clearTimeout(loopTimeout);
+      count = 0;
+      stopFlag = false;
+      document.getElementById("counter").textContent = "Tirages : 0";
+      document.getElementById("ticketsContainer").innerHTML = "";
+      document.getElementById("resultat").innerHTML = `<strong>Tirage :</strong><br>Numéros : --<br>Étoiles : --`;
+      document.getElementById("stopBtn").textContent = "Stop";
+      // Masquer le bouton "Démarrer" pendant la simulation
+      document.getElementById("startBtn").style.display = "none";
+      runLoop();
+    }
+
+    // Gestion du bouton Démarrer
     document.getElementById("startBtn").addEventListener("click", startDrawing);
 
-    // Bouton Stop/Continuer
+    // Gestion du bouton Stop/Continuer
     document.getElementById("stopBtn").addEventListener("click", function() {
       if (!stopFlag) {
         stopFlag = true;
@@ -447,11 +453,11 @@
       } else {
         stopFlag = false;
         this.textContent = "Stop";
-        startDrawing();
+        runLoop();
       }
     });
 
-    // Bouton Reset
+    // Gestion du bouton Reset
     document.getElementById("resetBtn").addEventListener("click", function() {
       stopFlag = true;
       clearTimeout(loopTimeout);
@@ -461,6 +467,8 @@
       document.getElementById("resultat").innerHTML =
         `<strong>Tirage :</strong><br>Numéros : --<br>Étoiles : --`;
       document.getElementById("stopBtn").textContent = "Stop";
+      // Réafficher le bouton "Démarrer" après reset
+      document.getElementById("startBtn").style.display = "block";
     });
   </script>
 </body>
