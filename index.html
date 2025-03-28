@@ -134,27 +134,36 @@
         Numéros : --<br>
         Étoiles : --
       </div>
+
       <div class="compteur" id="counter">Tirages : 0</div>
+      <!-- Affichage du temps écoulé -->
+      <div class="compteur" id="timePassed">Temps écoulé : 0 jour</div>
 
       <div class="section display" id="ticketsContainer"></div>
 
-      <!-- Nouveau bloc pour les statistiques de combinaisons -->
+      <!-- Bloc pour les statistiques de combinaisons -->
       <div class="section display" id="statsContainer">
         <h3>Statistiques de résultats</h3>
         <ul>
-          <!-- On n'affiche que les combos souhaitées -->
+          <!-- Ajout de 1_0 et 0_0 -->
           <li>5 n° + 2 ★ : <span id="stats_5_2">0</span></li>
           <li>5 n° + 1 ★ : <span id="stats_5_1">0</span></li>
+          <li>5 n° + 0 ★ : <span id="stats_5_0">0</span></li>
           <li>4 n° + 2 ★ : <span id="stats_4_2">0</span></li>
           <li>4 n° + 1 ★ : <span id="stats_4_1">0</span></li>
+          <li>4 n° + 0 ★ : <span id="stats_4_0">0</span></li>
           <li>3 n° + 2 ★ : <span id="stats_3_2">0</span></li>
           <li>3 n° + 1 ★ : <span id="stats_3_1">0</span></li>
+          <li>3 n° + 0 ★ : <span id="stats_3_0">0</span></li>
           <li>2 n° + 2 ★ : <span id="stats_2_2">0</span></li>
           <li>2 n° + 1 ★ : <span id="stats_2_1">0</span></li>
+          <li>2 n° + 0 ★ : <span id="stats_2_0">0</span></li>
           <li>1 n° + 2 ★ : <span id="stats_1_2">0</span></li>
           <li>1 n° + 1 ★ : <span id="stats_1_1">0</span></li>
+          <li>1 n° + 0 ★ : <span id="stats_1_0">0</span></li> <!-- NOUVEAU -->
           <li>0 n° + 2 ★ : <span id="stats_0_2">0</span></li>
           <li>0 n° + 1 ★ : <span id="stats_0_1">0</span></li>
+          <li>0 n° + 0 ★ : <span id="stats_0_0">0</span></li> <!-- NOUVEAU -->
         </ul>
       </div>
     </div>
@@ -163,21 +172,26 @@
   <script>
     // --- VARIABLES GLOBALES ---
 
-    // 1) Objet pour stocker les occurrences de chaque combinaison (numéros/stars)
-    //    On reprend les combinaisons voulues (5-2, 5-1, etc.).
+    // Ajout de "1_0" et "0_0"
     let stats = {
       "5_2": 0,
       "5_1": 0,
+      "5_0": 0,
       "4_2": 0,
       "4_1": 0,
+      "4_0": 0,
       "3_2": 0,
       "3_1": 0,
+      "3_0": 0,
       "2_2": 0,
       "2_1": 0,
+      "2_0": 0,
       "1_2": 0,
       "1_1": 0,
+      "1_0": 0, // NOUVEAU
       "0_2": 0,
-      "0_1": 0
+      "0_1": 0,
+      "0_0": 0  // NOUVEAU
     };
 
     let count = 0;         // compteur de tirages
@@ -245,32 +259,27 @@
       return tickets;
     }
 
-    // 2) Met à jour l’affichage des stats dans la partie HTML (dans #statsContainer)
-	function updateStatsDisplay() {
-	  // Calculer la somme totale de toutes les occurrences
-	  let total = 0;
-	  for (let combo in stats) {
-		total += stats[combo];
-	  }
+    // Mise à jour de l’affichage des stats
+    function updateStatsDisplay() {
+      let total = 0;
+      for (let combo in stats) {
+        total += stats[combo];
+      }
 
-	  // Mettre à jour l'affichage pour chaque combinaison
-	  for (let combo in stats) {
-		const elem = document.getElementById("stats_" + combo);
-		if (elem) {
-		  const countValue = stats[combo];
-		  let pct = (total > 0) ? (countValue / total * 100) : 0;
-		  
-		  // Si la valeur est 0, afficher uniquement le 0 en rouge
-		  if (countValue === 0) {
-			elem.innerHTML = `<span style="color: red;">${countValue.toLocaleString('de-DE')}</span> <span style="color: gray;">(${pct.toFixed(2)}%)</span>`;
-		  } else {
-			elem.innerHTML = `${countValue.toLocaleString('de-DE')} <span style="color: gray;">(${pct.toFixed(2)}%)</span>`;
-		  }
-		}
-	  }
-	}
-
-
+      for (let combo in stats) {
+        const elem = document.getElementById("stats_" + combo);
+        if (elem) {
+          const countValue = stats[combo];
+          let pct = (total > 0) ? (countValue / total * 100) : 0;
+          
+          if (countValue === 0) {
+            elem.innerHTML = `<span style="color: red;">${countValue.toLocaleString('de-DE')}</span> <span style="color: gray;">(${pct.toFixed(2)}%)</span>`;
+          } else {
+            elem.innerHTML = `${countValue.toLocaleString('de-DE')} <span style="color: gray;">(${pct.toFixed(2)}%)</span>`;
+          }
+        }
+      }
+    }
 
     // Calcul et affichage du taux de chance estimé
     function updateChanceDisplay() {
@@ -287,7 +296,6 @@
           numCount = grids[0].numbers.length;
           starCount = grids[0].stars.length;
         } else {
-          // Si pas de grilles valides, on peut forcer 5 et 2 ou laisser un fallback
           numCount = 5;
           starCount = 2;
         }
@@ -328,8 +336,56 @@
         `1 chance sur ${reciprocalFormatted}`;
     }
 
-    // --- EVENEMENTS ET BOUCLE PRINCIPALE ---
+    // Affichage du temps écoulé : siècles, années, mois, semaines, jours
+    function formatTimeInDays(totalDays) {
+      const joursTotal = Math.floor(totalDays);
 
+      // 1 siècle = 100 ans = 36500 jours (approx)
+      let centuries = Math.floor(joursTotal / 36500);
+      let reste = joursTotal % 36500;
+
+      let years = Math.floor(reste / 365);
+      reste = reste % 365;
+
+      // On prend ~30,4375 jours par mois en moyenne
+      let months = Math.floor(reste / 30.4375);
+      reste = Math.floor(reste % 30.4375);
+
+      let weeks = Math.floor(reste / 7);
+      let days = reste % 7;
+
+      const parts = [];
+      if (centuries > 0) {
+        parts.push(centuries + " " + (centuries === 1 ? "siècle" : "siècles"));
+      }
+      if (years > 0) {
+        parts.push(years + " " + (years === 1 ? "an" : "ans"));
+      }
+      if (months > 0) {
+        parts.push(months + " " + (months === 1 ? "mois" : "mois")); // "mois" est identique au singulier/pluriel
+      }
+      if (weeks > 0) {
+        parts.push(weeks + " " + (weeks === 1 ? "semaine" : "semaines"));
+      }
+      if (days > 0) {
+        parts.push(days + " " + (days === 1 ? "jour" : "jours"));
+      }
+
+      // Si rien n'est > 0
+      if (parts.length === 0) {
+        return "0 jour";
+      }
+      return parts.join(", ");
+    }
+
+    function updateTimePassed(drawCount) {
+      // 2 tirages / semaine => 1 tirage = 3,5 jours
+      const days = drawCount * 3.5;
+      const formatted = formatTimeInDays(days);
+      document.getElementById("timePassed").textContent = "Temps écoulé : " + formatted;
+    }
+
+    // --- EVENEMENTS ET BOUCLE PRINCIPALE ---
     document.querySelectorAll("#ticketNumbersCount, #ticketStarsCount, #numTickets, #stopNumbers, #stopStars, #customGrids, #batchSize")
       .forEach(input => {
         input.addEventListener("input", updateChanceDisplay);
@@ -392,7 +448,7 @@
         count++;
         tickets = [];
 
-        // Génération des tickets (flash ou custom)
+        // Génération des tickets
         for (let j = 0; j < numTickets; j++) {
           if (mode === "flash") {
             tickets.push(generateTicket(numCount, starCount));
@@ -408,19 +464,22 @@
 
         // Vérification des tickets
         let foundWinningTicket = false;
+        let winningTicket = null;
+
         tickets.forEach(ticket => {
           const matchNumbers = countMatches(ticket.numbers, draw.numbers);
           const matchStars = countMatches(ticket.stars, draw.stars);
 
-          // 3) Incrémenter les stats (si la clé existe)
+          // Incrémenter les stats
           const key = `${matchNumbers}_${matchStars}`;
           if (stats.hasOwnProperty(key)) {
             stats[key]++;
           }
 
-          // On vérifie si on atteint le seuil stopNumbers / stopStars
+          // Seuil atteint ?
           if (matchNumbers >= stopNumbers && matchStars >= stopStars) {
-            foundWinningTicket = ticket;
+            foundWinningTicket = true;
+            winningTicket = ticket;
           }
         });
 
@@ -436,7 +495,7 @@
                              Numéros : ${ticket.numbers.join(", ")}<br>
                              Étoiles : ${ticket.stars.join(", ")}<br>
                              (Correspondances : ${matchNumbers} n° et ${matchStars} ★)`;
-            if (ticket === foundWinningTicket) {
+            if (ticket === winningTicket) {
               div.classList.add("winning");
             }
             document.getElementById("ticketsContainer").appendChild(div);
@@ -449,13 +508,12 @@
              Étoiles : ${draw.stars.join(", ")}`;
 
           document.getElementById("counter").textContent = "Tirages : " + count;
-
-          // Mise à jour de l’affichage des stats
+          updateTimePassed(count);
           updateStatsDisplay();
 
           alert(
             "Seuil atteint !\n" +
-            "Ticket gagnant : " + foundWinningTicket.numbers.join(", ") + " | " + foundWinningTicket.stars.join(", ") + "\n" +
+            "Ticket gagnant : " + winningTicket.numbers.join(", ") + " | " + winningTicket.stars.join(", ") + "\n" +
             "Tirage : " + draw.numbers.join(", ") + " | " + draw.stars.join(", ") + "\n" +
             "Nombre de tirages : " + count
           );
@@ -482,8 +540,7 @@
          Étoiles : ${draw.stars.join(", ")}`;
 
       document.getElementById("counter").textContent = "Tirages : " + count.toLocaleString('de-DE');
-
-      // 4) Mettre à jour l’affichage des stats à chaque batch
+      updateTimePassed(count);
       updateStatsDisplay();
 
       loopTimeout = setTimeout(runLoop, speed);
@@ -500,12 +557,13 @@
       }
 
       document.getElementById("counter").textContent = "Tirages : 0";
+      document.getElementById("timePassed").textContent = "Temps écoulé : 0 jour";
       document.getElementById("ticketsContainer").innerHTML = "";
       document.getElementById("resultat").innerHTML = `<strong>Tirage :</strong><br>Numéros : --<br>Étoiles : --`;
       document.getElementById("stopBtn").textContent = "Stop";
 
-      // Mise à jour initiale des stats
       updateStatsDisplay();
+      updateTimePassed(0);
 
       document.getElementById("startBtn").style.display = "none";
       document.getElementById("stopBtn").style.display = "inline-block";
@@ -537,6 +595,7 @@
       updateStatsDisplay();
 
       document.getElementById("counter").textContent = "Tirages : 0";
+      document.getElementById("timePassed").textContent = "Temps écoulé : 0 jour";
       document.getElementById("ticketsContainer").innerHTML = "";
       document.getElementById("resultat").innerHTML =
         `<strong>Tirage :</strong><br>Numéros : --<br>Étoiles : --`;
