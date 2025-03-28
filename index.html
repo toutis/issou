@@ -112,6 +112,12 @@
           <label for="stopStars">Stopper si au moins Y étoiles correctes :</label>
           <input type="number" id="stopStars" value="2" min="1" max="2">
         </div>
+        <div class="form-group">
+          <input type="checkbox" id="stopAfterYearsCheckbox">
+          <label for="stopAfterYearsCheckbox">Stopper si on dépasse X années :</label>
+          <input type="number" id="stopAfterYearsInput" value="50" min="1" style="width:80px;">
+        </div>
+
         <div class="form-group" id="batchSizeGroup">
           <label for="batchSize">Tirage par ms :</label>
           <input type="number" id="batchSize" value="1000" min="1">
@@ -119,13 +125,6 @@
         <div class="form-group">
           <label for="speed">Vitesse (ms) :</label>
           <input type="number" id="speed" value="1" min="0">
-        </div>
-
-        <!-- (NOUVEAU) Case à cocher et input pour stopper après X années -->
-        <div class="form-group">
-          <input type="checkbox" id="stopAfterYearsCheckbox">
-          <label for="stopAfterYearsCheckbox">Stopper si on dépasse X années :</label>
-          <input type="number" id="stopAfterYearsInput" value="50" min="1" style="width:80px;">
         </div>
 
         <button id="startBtn">Démarrer la simulation</button>
