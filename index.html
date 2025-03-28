@@ -8,8 +8,6 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
-    /* Conteneur principal en flex : deux colonnes (gauche et droite).
-       On limite la largeur totale et on centre le tout avec margin: 0 auto. */
     .main-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -19,13 +17,11 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-    /* Colonne de gauche (formulaire, paramètres) */
     .left-column {
       flex: 1;
       max-width: 45%;
       text-align: left;
     }
-    /* Colonne de droite (chance, tickets, tirages...) */
     .right-column {
       flex: 1;
       max-width: 45%;
@@ -58,11 +54,21 @@
       font-weight: bold;
       margin: 10px 0;
     }
-    /* Contour doré autour du tirage officiel */
     #resultat {
       border: 2px solid gold;
       padding: 10px;
       margin: 10px 0;
+    }
+    /* Un petit style pour la liste des stats */
+    #statsContainer {
+      margin-top: 20px;
+    }
+    #statsContainer ul {
+      list-style: none;
+      padding: 0;
+    }
+    #statsContainer li {
+      margin: 5px 0;
     }
   </style>
 </head>
@@ -72,7 +78,6 @@
     <div class="left-column">
       <h1>Simulation Euro Millions</h1>
       <div class="section">
-        <!-- Sélection du mode -->
         <div class="form-group">
           <label for="modeSelect">Mode :</label>
           <select id="modeSelect">
@@ -80,16 +85,12 @@
             <option value="custom">Personnalisé (définir mes propres grilles)</option>
           </select>
         </div>
-
-        <!-- Paramétrage commun pour le mode Flash -->
         <div class="form-group" id="flashSettings">
-          <label for="ticketNumbersCount">Nombre de numéros dans le ticket (min 5, max 50) :</label>
+          <label for="ticketNumbersCount">Nombre de numéros (min 5, max 50) :</label>
           <input type="number" id="ticketNumbersCount" value="5" min="5" max="50"><br>
-          <label for="ticketStarsCount">Nombre d'étoiles dans le ticket (min 2, max 12) :</label>
+          <label for="ticketStarsCount">Nombre d'étoiles (min 2, max 12) :</label>
           <input type="number" id="ticketStarsCount" value="2" min="2" max="12">
         </div>
-
-        <!-- Paramétrage personnalisé -->
         <div class="form-group" id="customSettings" style="display:none;">
           <label for="customGrids">
             Mes grilles personnalisées :<br>
@@ -99,14 +100,10 @@
           <br>
           <textarea id="customGrids" rows="4" cols="50" placeholder="Une grille par ligne"></textarea>
         </div>
-
-        <!-- Champ pour flash mode -->
         <div class="form-group" id="ticketsCountGroup">
           <label for="numTickets">Nombre de tickets par tirage :</label>
           <input type="number" id="numTickets" value="2" min="1">
         </div>
-
-        <!-- Champs d'arrêt -->
         <div class="form-group">
           <label for="stopNumbers">Stopper si au moins X numéros corrects :</label>
           <input type="number" id="stopNumbers" value="5" min="1" max="5">
@@ -115,8 +112,6 @@
           <label for="stopStars">Stopper si au moins Y étoiles correctes :</label>
           <input type="number" id="stopStars" value="2" min="1" max="2">
         </div>
-
-        <!-- Vitesse et délai -->
         <div class="form-group" id="batchSizeGroup">
           <label for="batchSize">Tirage par ms :</label>
           <input type="number" id="batchSize" value="1000" min="1">
@@ -125,35 +120,72 @@
           <label for="speed">Vitesse (ms) :</label>
           <input type="number" id="speed" value="1" min="0">
         </div>
-
         <button id="startBtn">Démarrer la simulation</button>
         <button id="stopBtn">Stop</button>
         <button id="resetBtn">Reset</button>
       </div>
     </div>
 
-    <!-- Colonne de droite : affichage des chances, tickets, résultats, compteur -->
+    <!-- Colonne de droite : affichage des chances, tickets, résultats, compteur, stats -->
     <div class="right-column">
-      <div id="chanceDisplay">
-        <!-- Taux de chance calculé s’affiche ici -->
-      </div>
-
+      <div id="chanceDisplay"></div>
       <div class="section display" id="resultat">
         <strong>Tirage :</strong><br>
         Numéros : --<br>
         Étoiles : --
       </div>
-
       <div class="compteur" id="counter">Tirages : 0</div>
-      
-      <div class="section display" id="ticketsContainer">
-        <!-- Affichage des tickets -->
+
+      <div class="section display" id="ticketsContainer"></div>
+
+      <!-- Nouveau bloc pour les statistiques de combinaisons -->
+      <div class="section display" id="statsContainer">
+        <h3>Statistiques de résultats</h3>
+        <ul>
+          <!-- On n'affiche que les combos souhaitées -->
+          <li>5 n° + 2 ★ : <span id="stats_5_2">0</span></li>
+          <li>5 n° + 1 ★ : <span id="stats_5_1">0</span></li>
+          <li>4 n° + 2 ★ : <span id="stats_4_2">0</span></li>
+          <li>4 n° + 1 ★ : <span id="stats_4_1">0</span></li>
+          <li>3 n° + 2 ★ : <span id="stats_3_2">0</span></li>
+          <li>3 n° + 1 ★ : <span id="stats_3_1">0</span></li>
+          <li>2 n° + 2 ★ : <span id="stats_2_2">0</span></li>
+          <li>2 n° + 1 ★ : <span id="stats_2_1">0</span></li>
+          <li>1 n° + 2 ★ : <span id="stats_1_2">0</span></li>
+          <li>1 n° + 1 ★ : <span id="stats_1_1">0</span></li>
+          <li>0 n° + 2 ★ : <span id="stats_0_2">0</span></li>
+          <li>0 n° + 1 ★ : <span id="stats_0_1">0</span></li>
+        </ul>
       </div>
     </div>
   </div>
 
   <script>
-    // Fonction de calcul des combinaisons (nCr)
+    // --- VARIABLES GLOBALES ---
+
+    // 1) Objet pour stocker les occurrences de chaque combinaison (numéros/stars)
+    //    On reprend les combinaisons voulues (5-2, 5-1, etc.).
+    let stats = {
+      "5_2": 0,
+      "5_1": 0,
+      "4_2": 0,
+      "4_1": 0,
+      "3_2": 0,
+      "3_1": 0,
+      "2_2": 0,
+      "2_1": 0,
+      "1_2": 0,
+      "1_1": 0,
+      "0_2": 0,
+      "0_1": 0
+    };
+
+    let count = 0;         // compteur de tirages
+    let stopFlag = false;  // flag pour stopper la simulation
+    let loopTimeout;       // ID du timeout de la boucle
+
+    // --- FONCTIONS UTILES ---
+
     function combination(n, r) {
       if (r > n) return 0;
       let num = 1, den = 1;
@@ -164,7 +196,6 @@
       return num / den;
     }
 
-    // Génère un tableau de "count" nombres distincts entre 1 et "max", triés en ordre croissant
     function generateNumbers(count, max) {
       let numbers = [];
       while (numbers.length < count) {
@@ -176,34 +207,28 @@
       return numbers.sort((a, b) => a - b);
     }
 
-    // Génère un ticket en mode flash
     function generateTicket(numCount, starCount) {
       const ticketNumbers = generateNumbers(numCount, 50);
       const ticketStars = generateNumbers(starCount, 12);
       return { numbers: ticketNumbers, stars: ticketStars };
     }
 
-    // Génère un tirage EuroMillions standard : 5 numéros (1-50) et 2 étoiles (1-12)
     function generateDraw() {
       const drawNumbers = generateNumbers(5, 50);
       const drawStars = generateNumbers(2, 12);
       return { numbers: drawNumbers, stars: drawStars };
     }
 
-    // Compte le nombre d'éléments communs entre deux tableaux
     function countMatches(arr1, arr2) {
       return arr1.filter(x => arr2.includes(x)).length;
     }
 
-    // Parse une chaîne de caractères en une liste de nombres
     function parseCustomInput(str) {
       return str.split(',')
                 .map(s => parseInt(s.trim()))
                 .filter(n => !isNaN(n));
     }
 
-    // Parse le contenu du textarea customGrids pour obtenir plusieurs tickets personnalisés.
-    // Chaque ligne doit être au format: "num1,num2,... ; star1,star2,..."
     function parseCustomGrids(str) {
       const lines = str.split('\n').filter(line => line.trim() !== '');
       const tickets = [];
@@ -220,11 +245,35 @@
       return tickets;
     }
 
-    let count = 0;         // compteur de tirages
-    let stopFlag = false;  // flag pour stopper la simulation
-    let loopTimeout;       // ID du timeout de la boucle
+    // 2) Met à jour l’affichage des stats dans la partie HTML (dans #statsContainer)
+	function updateStatsDisplay() {
+	  // 1) Calcule la somme totale de toutes les occurrences
+	  let total = 0;
+	  for (let combo in stats) {
+		total += stats[combo];
+	  }
 
-    // Mise à jour du taux de chance en fonction des paramètres et du mode choisi.
+	  // 2) Pour chaque combinaison, calcule le pourcentage
+	  for (let combo in stats) {
+		const elem = document.getElementById("stats_" + combo);
+		if (elem) {
+		  const count = stats[combo];
+		  // Évite la division par zéro
+		  let pct = (total > 0) ? (count / total * 100) : 0;
+
+		  // 3) Affiche, par exemple : "163 (0.24%)"
+		  //    On peut utiliser .toFixed(2) pour 2 décimales, 
+		  //    et toLocaleString('de-DE') pour formater le nombre d'occurrences avec des points.
+		  elem.innerHTML = `
+		  ${count.toLocaleString('de-DE')} 
+		  <span style="color: gray;">(${pct.toFixed(2)}%)</span>
+		`;
+		}
+	  }
+	}
+
+
+    // Calcul et affichage du taux de chance estimé
     function updateChanceDisplay() {
       const mode = document.getElementById("modeSelect").value;
       let numCount, starCount;
@@ -239,10 +288,9 @@
           numCount = grids[0].numbers.length;
           starCount = grids[0].stars.length;
         } else {
-          const customNums = parseCustomInput(document.getElementById("customNumbers").value);
-          const customStars = parseCustomInput(document.getElementById("customStars").value);
-          numCount = customNums.length;
-          starCount = customStars.length;
+          // Si pas de grilles valides, on peut forcer 5 et 2 ou laisser un fallback
+          numCount = 5;
+          starCount = 2;
         }
       }
 
@@ -256,11 +304,15 @@
       function computeChance(numCount, starCount, stopNumbers, stopStars) {
         let probNum = 0;
         for (let k = stopNumbers; k <= Math.min(numCount, 5); k++) {
-          probNum += combination(numCount, k) * combination(50 - numCount, 5 - k) / combination(50, 5);
+          probNum += combination(numCount, k) *
+                     combination(50 - numCount, 5 - k) /
+                     combination(50, 5);
         }
         let probStars = 0;
         for (let l = stopStars; l <= Math.min(starCount, 2); l++) {
-          probStars += combination(starCount, l) * combination(12 - starCount, 2 - l) / combination(12, 2);
+          probStars += combination(starCount, l) *
+                       combination(12 - starCount, 2 - l) /
+                       combination(12, 2);
         }
         return probNum * probStars;
       }
@@ -268,24 +320,25 @@
       const pTicket = computeChance(numCount, starCount, stopNumbers, stopStars);
       const pGlobal = 1 - Math.pow(1 - pTicket, numTickets);
       const percent = (pGlobal * 100).toFixed(8);
-      // Formatage en style allemand pour obtenir des points comme séparateurs de milliers (ex : 1.000.000)
-      const reciprocalFormatted = pGlobal > 0 ? (1 / pGlobal).toLocaleString('de-DE', { maximumFractionDigits: 0 }) : "∞";
+      const reciprocalFormatted = pGlobal > 0
+        ? (1 / pGlobal).toLocaleString('de-DE', { maximumFractionDigits: 0 })
+        : "∞";
 
       document.getElementById("chanceDisplay").innerHTML =
-        `Taux de chance (pour au moins ${stopNumbers} numéros et ${stopStars} étoiles) : ${percent}%<br>1 chance sur ${reciprocalFormatted}`;
+        `Taux de chance (pour au moins ${stopNumbers} n° et ${stopStars} ★) : ${percent}%<br>` +
+        `1 chance sur ${reciprocalFormatted}`;
     }
 
-    // Mettre à jour l'affichage lors des changements
-    document.querySelectorAll("#ticketNumbersCount, #ticketStarsCount, #numTickets, #stopNumbers, #stopStars, #customNumbers, #customStars, #customGrids, #batchSize")
+    // --- EVENEMENTS ET BOUCLE PRINCIPALE ---
+
+    document.querySelectorAll("#ticketNumbersCount, #ticketStarsCount, #numTickets, #stopNumbers, #stopStars, #customGrids, #batchSize")
       .forEach(input => {
         input.addEventListener("input", updateChanceDisplay);
       });
     updateChanceDisplay();
 
-    // Masquer le bouton "Stop" tant qu'aucun tirage n'a été lancé (stats à zéro)
     document.getElementById("stopBtn").style.display = "none";
 
-    // Basculer l'affichage des paramètres en fonction du mode sélectionné
     document.getElementById("modeSelect").addEventListener("change", function() {
       const mode = this.value;
       if (mode === "flash") {
@@ -302,9 +355,9 @@
       updateChanceDisplay();
     });
 
-    // Fonction principale de la boucle de tirage
     function runLoop() {
       if (stopFlag) return;
+
       let tickets = [];
       let draw = null;
       const mode = document.getElementById("modeSelect").value;
@@ -319,13 +372,13 @@
         ? (parseInt(document.getElementById("ticketNumbersCount").value) || 5)
         : (customTickets.length > 0
             ? customTickets[0].numbers.length
-            : parseCustomInput(document.getElementById("customNumbers").value).length);
+            : 5);
 
       const starCount = (mode === "flash")
         ? (parseInt(document.getElementById("ticketStarsCount").value) || 2)
         : (customTickets.length > 0
             ? customTickets[0].stars.length
-            : parseCustomInput(document.getElementById("customStars").value).length);
+            : 2);
 
       const numTickets = (mode === "flash")
         ? (parseInt(document.getElementById("numTickets").value) || 1)
@@ -334,51 +387,63 @@
       const stopNumbers = parseInt(document.getElementById("stopNumbers").value) || 5;
       const stopStars = parseInt(document.getElementById("stopStars").value) || 2;
       const speed = parseInt(document.getElementById("speed").value) || 0;
-      const batchSize = parseInt(document.getElementById("batchSize").value) || 10000;
+      const batchSize = parseInt(document.getElementById("batchSize").value) || 1000;
 
       for (let i = 0; i < batchSize; i++) {
         count++;
         tickets = [];
+
+        // Génération des tickets (flash ou custom)
         for (let j = 0; j < numTickets; j++) {
           if (mode === "flash") {
             tickets.push(generateTicket(numCount, starCount));
           } else {
             if (customTickets.length > 0) {
               tickets.push(customTickets[j % customTickets.length]);
-            } else {
-              const customNums = parseCustomInput(document.getElementById("customNumbers").value);
-              const customStars = parseCustomInput(document.getElementById("customStars").value);
-              tickets.push({
-                numbers: customNums.sort((a, b) => a - b),
-                stars: customStars.sort((a, b) => a - b)
-              });
             }
           }
         }
 
+        // Tirage
         draw = generateDraw();
 
-        const winningTicket = tickets.find(ticket => {
+        // Vérification des tickets
+        let foundWinningTicket = false;
+        tickets.forEach(ticket => {
           const matchNumbers = countMatches(ticket.numbers, draw.numbers);
           const matchStars = countMatches(ticket.stars, draw.stars);
-          return (matchNumbers >= stopNumbers && matchStars >= stopStars);
+
+          // 3) Incrémenter les stats (si la clé existe)
+          const key = `${matchNumbers}_${matchStars}`;
+          if (stats.hasOwnProperty(key)) {
+            stats[key]++;
+          }
+
+          // On vérifie si on atteint le seuil stopNumbers / stopStars
+          if (matchNumbers >= stopNumbers && matchStars >= stopStars) {
+            foundWinningTicket = ticket;
+          }
         });
 
-        if (winningTicket) {
-          // Affichage des tickets et du tirage gagnant
+        if (foundWinningTicket) {
+          // Affiche la liste de tickets
           document.getElementById("ticketsContainer").innerHTML = "";
           tickets.forEach((ticket, index) => {
             const div = document.createElement("div");
             div.className = "ticket";
+            const matchNumbers = countMatches(ticket.numbers, draw.numbers);
+            const matchStars = countMatches(ticket.stars, draw.stars);
             div.innerHTML = `<strong>Ticket ${index + 1} :</strong><br>
-                               Numéros : ${ticket.numbers.join(", ")}<br>
-                               Étoiles : ${ticket.stars.join(", ")}`;
-            if (ticket === winningTicket) {
+                             Numéros : ${ticket.numbers.join(", ")}<br>
+                             Étoiles : ${ticket.stars.join(", ")}<br>
+                             (Correspondances : ${matchNumbers} n° et ${matchStars} ★)`;
+            if (ticket === foundWinningTicket) {
               div.classList.add("winning");
             }
             document.getElementById("ticketsContainer").appendChild(div);
           });
 
+          // Mise à jour du tirage
           document.getElementById("resultat").innerHTML =
             `<strong>Tirage :</strong><br>
              Numéros : ${draw.numbers.join(", ")}<br>
@@ -386,20 +451,22 @@
 
           document.getElementById("counter").textContent = "Tirages : " + count;
 
+          // Mise à jour de l’affichage des stats
+          updateStatsDisplay();
+
           alert(
             "Seuil atteint !\n" +
-            "Ticket gagnant : " + winningTicket.numbers.join(", ") + " | " + winningTicket.stars.join(", ") + "\n" +
+            "Ticket gagnant : " + foundWinningTicket.numbers.join(", ") + " | " + foundWinningTicket.stars.join(", ") + "\n" +
             "Tirage : " + draw.numbers.join(", ") + " | " + draw.stars.join(", ") + "\n" +
             "Nombre de tirages : " + count
           );
-          // Arrêter la simulation après le ticket gagnant et réafficher le bouton "Démarrer"
           stopFlag = true;
           document.getElementById("startBtn").style.display = "block";
           return;
         }
       }
 
-      // Mise à jour de l'affichage pour le dernier lot de tickets
+      // Mise à jour de l’affichage après ce lot de tirages
       document.getElementById("ticketsContainer").innerHTML = "";
       tickets.forEach((ticket, index) => {
         const div = document.createElement("div");
@@ -415,29 +482,39 @@
          Numéros : ${draw.numbers.join(", ")}<br>
          Étoiles : ${draw.stars.join(", ")}`;
 
-      document.getElementById("counter").textContent = "Tirages : " + count;
+      document.getElementById("counter").textContent = "Tirages : " + count.toLocaleString('de-DE');
+
+      // 4) Mettre à jour l’affichage des stats à chaque batch
+      updateStatsDisplay();
+
       loopTimeout = setTimeout(runLoop, speed);
     }
 
-    // Fonction de démarrage initiale de la simulation
     function startDrawing() {
       clearTimeout(loopTimeout);
       count = 0;
       stopFlag = false;
+
+      // Remise à zéro de stats
+      for (let combo in stats) {
+        stats[combo] = 0;
+      }
+
       document.getElementById("counter").textContent = "Tirages : 0";
       document.getElementById("ticketsContainer").innerHTML = "";
       document.getElementById("resultat").innerHTML = `<strong>Tirage :</strong><br>Numéros : --<br>Étoiles : --`;
       document.getElementById("stopBtn").textContent = "Stop";
-      // Masquer le bouton "Démarrer" pendant la simulation et afficher le bouton "Stop"
+
+      // Mise à jour initiale des stats
+      updateStatsDisplay();
+
       document.getElementById("startBtn").style.display = "none";
       document.getElementById("stopBtn").style.display = "inline-block";
       runLoop();
     }
 
-    // Gestion du bouton Démarrer
     document.getElementById("startBtn").addEventListener("click", startDrawing);
 
-    // Gestion du bouton Stop/Continuer
     document.getElementById("stopBtn").addEventListener("click", function() {
       if (!stopFlag) {
         stopFlag = true;
@@ -450,17 +527,21 @@
       }
     });
 
-    // Gestion du bouton Reset
     document.getElementById("resetBtn").addEventListener("click", function() {
       stopFlag = true;
       clearTimeout(loopTimeout);
       count = 0;
+      // Remise à zéro stats
+      for (let combo in stats) {
+        stats[combo] = 0;
+      }
+      updateStatsDisplay();
+
       document.getElementById("counter").textContent = "Tirages : 0";
       document.getElementById("ticketsContainer").innerHTML = "";
       document.getElementById("resultat").innerHTML =
         `<strong>Tirage :</strong><br>Numéros : --<br>Étoiles : --`;
       document.getElementById("stopBtn").textContent = "Stop";
-      // Réafficher le bouton "Démarrer" après reset et masquer le bouton "Stop"
       document.getElementById("startBtn").style.display = "block";
       document.getElementById("stopBtn").style.display = "none";
     });
