@@ -120,6 +120,14 @@
           <label for="speed">Vitesse (ms) :</label>
           <input type="number" id="speed" value="1" min="0">
         </div>
+
+        <!-- (NOUVEAU) Case à cocher et input pour stopper après X années -->
+        <div class="form-group">
+          <input type="checkbox" id="stopAfterYearsCheckbox" checked>
+          <label for="stopAfterYearsCheckbox">Stopper si on dépasse X années :</label>
+          <input type="number" id="stopAfterYearsInput" value="100" min="1" style="width:80px;">
+        </div>
+
         <button id="startBtn">Démarrer la simulation</button>
         <button id="stopBtn">Stop</button>
         <button id="resetBtn">Reset</button>
@@ -160,10 +168,10 @@
           <li>2 n° + 0 ★ : <span id="stats_2_0">0</span></li>
           <li>1 n° + 2 ★ : <span id="stats_1_2">0</span></li>
           <li>1 n° + 1 ★ : <span id="stats_1_1">0</span></li>
-          <li>1 n° + 0 ★ : <span id="stats_1_0">0</span></li> <!-- NOUVEAU -->
+          <li>1 n° + 0 ★ : <span id="stats_1_0">0</span></li>
           <li>0 n° + 2 ★ : <span id="stats_0_2">0</span></li>
           <li>0 n° + 1 ★ : <span id="stats_0_1">0</span></li>
-          <li>0 n° + 0 ★ : <span id="stats_0_0">0</span></li> <!-- NOUVEAU -->
+          <li>0 n° + 0 ★ : <span id="stats_0_0">0</span></li>
         </ul>
       </div>
     </div>
@@ -172,7 +180,6 @@
   <script>
     // --- VARIABLES GLOBALES ---
 
-    // Ajout de "1_0" et "0_0"
     let stats = {
       "5_2": 0,
       "5_1": 0,
@@ -188,10 +195,10 @@
       "2_0": 0,
       "1_2": 0,
       "1_1": 0,
-      "1_0": 0, // NOUVEAU
+      "1_0": 0,
       "0_2": 0,
       "0_1": 0,
-      "0_0": 0  // NOUVEAU
+      "0_0": 0
     };
 
     let count = 0;         // compteur de tirages
@@ -336,7 +343,7 @@
         `1 chance sur ${reciprocalFormatted}`;
     }
 
-    // Affichage du temps écoulé : siècles, années, mois, semaines, jours
+    // --- Aide pour le temps écoulé : siècles, années, mois, semaines, jours ---
     function formatTimeInDays(totalDays) {
       const joursTotal = Math.floor(totalDays);
 
@@ -362,7 +369,7 @@
         parts.push(years + " " + (years === 1 ? "an" : "ans"));
       }
       if (months > 0) {
-        parts.push(months + " " + (months === 1 ? "mois" : "mois")); // "mois" est identique au singulier/pluriel
+        parts.push(months + " mois");
       }
       if (weeks > 0) {
         parts.push(weeks + " " + (weeks === 1 ? "semaine" : "semaines"));
@@ -371,22 +378,26 @@
         parts.push(days + " " + (days === 1 ? "jour" : "jours"));
       }
 
-      // Si rien n'est > 0
       if (parts.length === 0) {
         return "0 jour";
       }
       return parts.join(", ");
     }
 
+    // Retourne le nombre d'années simulées (approx)
+    function getYearsFromDrawCount(drawCount) {
+      // 2 tirages / semaine => 1 tirage = 3,5 jours => / 365 => années
+      return (drawCount * 3.5) / 365;
+    }
+
     function updateTimePassed(drawCount) {
-      // 2 tirages / semaine => 1 tirage = 3,5 jours
       const days = drawCount * 3.5;
       const formatted = formatTimeInDays(days);
       document.getElementById("timePassed").textContent = "Temps écoulé : " + formatted;
     }
 
     // --- EVENEMENTS ET BOUCLE PRINCIPALE ---
-    document.querySelectorAll("#ticketNumbersCount, #ticketStarsCount, #numTickets, #stopNumbers, #stopStars, #customGrids, #batchSize")
+    document.querySelectorAll("#ticketNumbersCount, #ticketStarsCount, #numTickets, #stopNumbers, #stopStars, #customGrids, #batchSize, #stopAfterYearsInput, #stopAfterYearsCheckbox")
       .forEach(input => {
         input.addEventListener("input", updateChanceDisplay);
       });
@@ -444,6 +455,10 @@
       const speed = parseInt(document.getElementById("speed").value) || 0;
       const batchSize = parseInt(document.getElementById("batchSize").value) || 1000;
 
+      // (NOUVEAU) Récupère la case à cocher et la valeur X années
+      const stopAfterYearsChecked = document.getElementById("stopAfterYearsCheckbox").checked;
+      const stopAfterYearsValue = parseInt(document.getElementById("stopAfterYearsInput").value) || 100;
+
       for (let i = 0; i < batchSize; i++) {
         count++;
         tickets = [];
@@ -482,6 +497,31 @@
             winningTicket = ticket;
           }
         });
+
+        // On vérifie le temps simulé en années
+        if (stopAfterYearsChecked) {
+          const currentYears = getYearsFromDrawCount(count);
+          if (currentYears >= stopAfterYearsValue) {
+            // On stoppe car on dépasse X années
+            document.getElementById("ticketsContainer").innerHTML = "";
+            document.getElementById("resultat").innerHTML =
+              `<strong>Tirage :</strong><br>
+               Numéros : ${draw.numbers.join(", ")}<br>
+               Étoiles : ${draw.stars.join(", ")}`;
+
+            document.getElementById("counter").textContent = "Tirages : " + count;
+            updateTimePassed(count);
+            updateStatsDisplay();
+
+            alert(
+              "On a dépassé les " + stopAfterYearsValue + " ans de simulation !\n" +
+              "(Nombre de tirages : " + count + ")"
+            );
+            stopFlag = true;
+            document.getElementById("startBtn").style.display = "block";
+            return;
+          }
+        }
 
         if (foundWinningTicket) {
           // Affiche la liste de tickets
